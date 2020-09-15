@@ -19,8 +19,8 @@
               <field name="keterangan"/> 
               <field name="perusahaan" widget="radio"/>
               <field name="jenis_permintaan" widget="many2many_checkboxes"/>
-              <field name="dikeluarkan" />
-              <field name="diterima" readonly="1" />
+              <field name="dikeluarkan" attrs="{'invisible': [('dikeluarkan', '=', False)]}" />
+              <field name="diterima" readonly="1" attrs="{'invisible': [('diterima', '=', False)]}"/>
             </group>
           </sheet>
         </form>
@@ -87,7 +87,7 @@
     <menuitem name="Menu" id="purchasing.menu_1" parent="purchasing.menu_root"/>
 
     <!-- actions -->
-    <menuitem name="ATK" id="purchasing_form_atk" parent="purchasing.menu_2"
+    <menuitem name="Stationary" id="purchasing_form_atk" parent="purchasing.menu_2"
               action="client_form_action1"/>
     <menuitem name="Request" id="purchasing_form_type_request" parent="purchasing.menu_2"
               action="purchasing.action_form_type_request"/>
