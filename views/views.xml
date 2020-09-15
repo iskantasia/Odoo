@@ -1,0 +1,98 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+
+    <record model="ir.ui.view" id="purchasing.form">
+      <field name="name">Purchasing Form</field>
+      <field name="model">purchasing.stationery</field>
+      <field name="arch" type="xml">
+        <form>
+          <header>
+            <button name="approve" string="Approve" type="object" groups="purchasing.role_purchasing_user"/>
+          </header>
+          <sheet>
+            <group>
+              <field name="kode_barang"/>
+              <field name="nama_barang"/>
+              <field name="jumlah_permintaan"/>
+              <field name="jumlah_realisasi"/>
+              <field name="keterangan"/> 
+              <field name="perusahaan" widget="radio"/>
+              <field name="jenis_permintaan" widget="many2many_checkboxes"/>
+              <field name="dikeluarkan" />
+              <field name="diterima" readonly="1" />
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="purchasing.list">
+      <field name="name">Purchasing List</field>
+      <field name="model">purchasing.stationery</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="nama_barang"/>
+          <field name="jumlah_permintaan"/>
+          <field name="keterangan"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="purchasing.form_type_request">
+      <field name="name">New Type Request</field>
+      <field name="model">purchasing.type_request</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="type"/>
+        </tree>
+      </field>
+    </record>
+
+
+    <!-- actions opening views on models -->
+
+    <record model="ir.actions.act_window" id="client_form_action1">
+      <field name="name">Form</field>
+      <field name="res_model">purchasing.stationery</field>
+      <field name="view_mode">form</field>
+      <field name="view_id" ref="purchasing.form"/>
+    </record>
+
+    <record model="ir.actions.act_window" id="purchasing.action_form_stationery">
+      <field name="name">Stationary</field>
+      <field name="res_model">purchasing.stationery</field>
+      <field name="view_mode">tree,form</field>
+      <field name="view_id" ref="purchasing.list"/>
+    </record>
+
+    <record model="ir.actions.act_window" id="purchasing.action_form_type_request">
+      <field name="name">New Type Request</field>
+      <field name="res_model">purchasing.type_request</field>
+      <field name="view_mode">form</field>
+      <field name="view_id" ref="purchasing.form_type_request"/>
+    </record>
+
+
+
+    <!-- server action to the one above -->
+
+
+    <!-- Top menu item -->
+
+    <menuitem name="Purchasing" id="purchasing.menu_root" web_icon="purchasing,static/description/purchase_icon.png"/>
+
+    <!-- menu categories -->
+    <menuitem name="Form" id="purchasing.menu_2" parent="purchasing.menu_root"/>
+    <menuitem name="Menu" id="purchasing.menu_1" parent="purchasing.menu_root"/>
+
+    <!-- actions -->
+    <menuitem name="ATK" id="purchasing_form_atk" parent="purchasing.menu_2"
+              action="client_form_action1"/>
+    <menuitem name="Request" id="purchasing_form_type_request" parent="purchasing.menu_2"
+              action="purchasing.action_form_type_request"/>
+    <menuitem name="Home" id="purchasing_list_1" parent="purchasing.menu_1"
+              action="purchasing.action_form_stationery"/>
+
+  </data>
+</odoo>

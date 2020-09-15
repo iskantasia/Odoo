@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+        <record model="ir.module.category" id="role_user">
+            <field name="name">Role Purchasing</field>
+            <field name="description">User access untuk user request</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <record id="role_purchasing_user" model="res.groups">
+            <field name="name">User</field>
+            <field name="category_id" ref="role_user"/>
+        </record>
+
+        <record id="role_purchasing_approval" model="res.groups">
+            <field name="name">Approval</field>
+            <field name="category_id" ref="role_user"/>
+        </record>
+        
+        <!-- <record id="role_user_purchasing" model="ir.rule">
+            <field name="name">Purchasing rule</field>
+            <field name="model_id" ref="model_purchasing_stationery"/>
+        </record> -->
+
+        <!-- <record id="role_manager" model="res.groups">
+            <field name="name">Manager</field>
+            <field name="category_id" ref="module_management"/>
+            <field name="implied_ids" eval="[(4, ref('overtime_user'))]"/>
+        </record> -->
+</data>
+</odoo>
