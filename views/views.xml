@@ -26,6 +26,11 @@
                     <page string="Order Product">
                         <field name="product_id">
                             <tree editable="bottom">
+                                <control>
+                                    <create name="add_product_control" string="Add a product"/>
+                                    <create name="add_section_control" string="Add a section" context="{'default_display_type': 'line_section'}"/>
+                                    <create name="add_note_control" string="Add a note" context="{'default_display_type': 'line_note'}"/>
+                                </control>
                                 <field name="product_id"/>
                                 <field name="product_qty"/>
                                 <field name="product_uom"/>
