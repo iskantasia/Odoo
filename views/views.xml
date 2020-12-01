@@ -3,14 +3,25 @@
     <!-- explicit list view definition -->
 
     <record model="ir.ui.view" id="purchasing.form">
-      <field name="name">Purchasing Form</field>
+      <field name="name">Form Purchasing</field>
       <field name="model">purchasing.stationery</field>
       <field name="arch" type="xml">
         <form>
           <header>
+            <!-- Button Approve -->
             <button name="approve" string="Approve" type="object" groups="purchasing.role_purchasing_user"/>
+            <!-- Button Print -->
+            <button name="print_report" type="object" string="Print" class="oe_highlight"/>
           </header>
           <sheet>
+            <!-- <div class="ribbon-wrapper2">
+              <div class="ribbon btn btn-danger">Offer</div>
+            </div> -->
+            <div>
+                <h1>
+                    <field name="code_pr" readonly="1"/>
+                </h1>
+            </div>
             <group>
                 <group>
                     <field name="employee_id"/>
@@ -18,7 +29,6 @@
                 </group>
                 <group>
                     <field name="date_planned"/>
-                    <field name="description"/>
                 </group>
             </group>
             <group>
@@ -27,71 +37,81 @@
                         <field name="product_id">
                             <tree editable="bottom">
                                 <control>
-                                    <create name="add_product_control" string="Add a product"/>
-                                    <create name="add_section_control" string="Add a section" context="{'default_display_type': 'line_section'}"/>
-                                    <create name="add_note_control" string="Add a note" context="{'default_display_type': 'line_note'}"/>
+                                     <create name="add_product_control" string="Add a product"/>
                                 </control>
                                 <field name="product_id"/>
                                 <field name="product_qty"/>
                                 <field name="product_uom"/>
+                                <!-- <field name="description"/> -->
                             </tree>
                         </field>
                     </page>
                     <page string="Other Information">
                         <group>
-                            <field name="notes" class="oe_inline" placeholder="Define your terms and conditions ..."/>
+                            <field name="user_id"/>
+                            <field name="payment_term_id"/>
                         </group>
                         <group>
+                            <field name="notes" class="oe_inline" placeholder="Define your terms and conditions ..."/>
                         </group>
                     </page>
                 </notebook>
             </group>
+          <footer>
+              <div class="purchasing">
+                  <div id="footer_container">
+                    <h3>
+                      Odoo Custom Module Purchasing V.0.0.2
+                    </h3>
+                  </div>
+              </div>
+          </footer>
           </sheet>
         </form>
       </field>
     </record>
 
-<!--    <record model="ir.ui.view" id="purchasing.list">-->
-<!--      <field name="name">Purchasing List</field>-->
-<!--      <field name="model">purchasing.stationery</field>-->
-<!--      <field name="arch" type="xml">-->
-<!--        <tree>-->
-<!--          <field name="nama_barang"/>-->
-<!--          <field name="jumlah_permintaan"/>-->
-<!--          <field name="keterangan"/>-->
-<!--        </tree>-->
-<!--      </field>-->
-<!--    </record>-->
     <record model="ir.ui.view" id="purchasing.list">
-      <field name="name">Purchasing List</field>
+      <field name="name">Form Purchasing List</field>
       <field name="model">purchasing.stationery</field>
       <field name="arch" type="xml">
         <tree string="Purchasing Stationery Order Lines">
-          <field name="product_id"/>
-          <field name="product_uom"/>
-          <field name="description"/>
-<!--      <group colspan="12">-->
-<!--      <notebook>-->
-<!--          <page string="Invoice">-->
-<!--          </page>-->
-<!--      </notebook>-->
-<!--      </group>-->
+          <field name="code_pr" readonly="1"/>
+          <!-- <field name="product_qty"/> -->
+          <!-- <field name="product_uom"/> -->
         </tree>
       </field>
     </record>
 
     <record model="ir.ui.view" id="purchasing.form_type_request">
-      <field name="name">Request For Quotation</field>
+      <field name="name">Form Request For Quotation</field>
       <field name="model">purchasing.type_request</field>
       <field name="arch" type="xml">
-        <tree>
+        <tree editable="bottom">
+          <field name="employee_id"/>
           <field name="type"/>
+          <field name="company_id"/>
         </tree>
       </field>
     </record>
 
-    <!-- actions opening views on models -->
+    <!-- Menu Product -->
+    <record model="ir.ui.view" id="purchasing.form_product_info">
+      <field name="name">Form Product</field>
+      <field name="model">purchasing.product_info</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="info_product"/>
+          <field name="state"/>
+        </tree>
+          <!-- <field name="info_product" position="after">
+              <field name="state"/>
+          </field> -->
+          <!-- <field name="info_product" attrs="{'column_invisible': [('parent.state', 'not in', ['info_product', 'done'])]}"/> -->
+      </field>
+    </record>
 
+    <!-- actions opening views on models -->
     <record model="ir.actions.act_window" id="client_form_action1">
       <field name="name">Form</field>
       <field name="res_model">purchasing.stationery</field>
@@ -100,17 +120,25 @@
     </record>
 
     <record model="ir.actions.act_window" id="purchasing.action_form_stationery">
-      <field name="name">Stationary</field>
+      <field name="name">Form Stationary</field>
       <field name="res_model">purchasing.stationery</field>
       <field name="view_mode">tree,form</field>
       <field name="view_id" ref="purchasing.list"/>
     </record>
 
     <record model="ir.actions.act_window" id="purchasing.action_form_type_request">
-      <field name="name">Request For Quotation</field>
+      <field name="name">Form Request For Quotation</field>
       <field name="res_model">purchasing.type_request</field>
       <field name="view_mode">form</field>
       <field name="view_id" ref="purchasing.form_type_request"/>
+    </record>
+  
+    <!-- Menu Product -->
+    <record model="ir.actions.act_window" id="purchasing.action_form_product_info">
+      <field name="name">Form Product</field>
+      <field name="res_model">purchasing.product_info</field>
+      <field name="view_mode">kanban,tree,graph</field>
+      <field name="view_id" ref="purchasing.form_product_info"/>
     </record>
 
     <!-- server action to the one above -->
@@ -122,15 +150,21 @@
     <!-- menu categories -->
     <menuitem name="Home" id="purchasing.menu_1" parent="purchasing.menu_root" action="purchasing.action_form_stationery"/>
     <menuitem name="Menu" id="purchasing.menu_2" parent="purchasing.menu_root"/>
-<!--    <menuitem name="Setting" id="purchasing.menu_3" parent="purchasing.menu_root" action="purchasing.action_setting"/>-->
 
     <!-- actions -->
-    <menuitem name="Form Stationary" id="purchasing_form_atk" parent="purchasing.menu_2"
-              action="purchasing.action_form_stationery"/>
-    <menuitem name="Form Request For Quotation" id="purchasing_form_type_request" parent="purchasing.menu_2"
-              action="purchasing.action_form_type_request"/>
-<!--    <menuitem name="Setting" id="purchasing_action_setting" parent="purchasing.menu_3"-->
-<!--              action="purchasing.action_setting"/>-->
+    <menuitem name="Form Stationary"
+            id="purchasing_form_atk"
+            parent="purchasing.menu_2"
+            action="purchasing.action_form_stationery"/>
+    <menuitem name="Form Request For Quotation"
+            id="purchasing_form_type_request"
+            parent="purchasing.menu_2"
+            action="purchasing.action_form_type_request"/>
+    <!-- Menu Product -->
+    <menuitem name="Form Product"
+            id="purchasing_form_product_info"
+            parent="purchasing.menu_2"
+            action="purchasing.action_form_product_info"/>     
 
   </data>
 </odoo>
