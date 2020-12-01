@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Purchasing",
+    'name': "Purchase Bayu",
 
     'summary': """
         Short (1 phrase/line) summary of the module's purpose, used as
@@ -10,7 +10,7 @@
         Long description of module's purpose
     """,
 
-    'author': "My Company",
+    'author': "PT. Jababeka & Co",
     'website': "http://www.yourcompany.com",
 
     # Categories can be used to filter modules in modules listing
@@ -26,11 +26,23 @@
     'data': [
         'security/role.xml',
         'security/ir.model.access.csv',
+        'views/sequence.xml',
         'views/views.xml',
         'views/templates.xml',
+    #   'views/purchasing_menu.xml',
     ],
+
     # only loaded in demonstration mode
     'demo': [
         'demo/demo.xml',
     ],
+
+    # 'external_dependencies': {
+    #   'python': ['ldap3'],
+    # },
+    # 'sequence': 2,
+    # 'auto_install': False,
+    # 'installable': True,
+    # 'application': True,
+
 }
