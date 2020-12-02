@@ -77,7 +77,7 @@ class product_lines(models.Model):
     product_id = fields.Many2one(comodel_name='product.template', string='Name Product')
     product_qty = fields.Float(comodel_name='product.lines', string='Quantity', required=True)
     date_planned = fields.Datetime(string='Request Date', index=True)
-    price_unit = fields.Float(string='Unit Price', required=True, digits='Product Price')
+    price_unit = fields.Many2one('res.currency', string='Unit Price')
  #  Autofill / Join field product_uom by product_id
     product_uom = fields.Many2one('uom.uom', string='Unit Of Measure', default=lambda self: self.env['uom.uom'].search([]))
     # product_uom = fields.Many2one('uom.uom', string='Unit of Measure', domain="[('category_id', '=', product_uom_category_id)]")
