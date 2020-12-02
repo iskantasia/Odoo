@@ -14,6 +14,7 @@ class type_request(models.Model) :
         comodel_name="res.company",
         string="Company"
     )
+    company_name = fields.Char(related='employee_id.company_name')
     type = fields.Char()
 
 class form_stationery(models.Model):
@@ -29,6 +30,7 @@ class form_stationery(models.Model):
         comodel_name="res.company",
         string="Company"
     )
+    # company_id = fields.Char(related='employee_id.company_id')
 
     product_id = fields.One2many(
         comodel_name='product.lines',
@@ -74,9 +76,12 @@ class product_lines(models.Model):
     code_pr = fields.Many2one(comodel_name='purchasing.stationery', string='Code PR')
     product_id = fields.Many2one(comodel_name='product.template', string='Name Product')
     product_qty = fields.Float(comodel_name='product.lines', string='Quantity', required=True)
+    date_planned = fields.Datetime(string='Request Date', index=True)
+    price_unit = fields.Float(string='Unit Price', required=True, digits='Product Price')
  #  Autofill / Join field product_uom by product_id
     product_uom = fields.Many2one('uom.uom', string='Unit Of Measure', default=lambda self: self.env['uom.uom'].search([]))
-    date_planned = fields.Datetime(string='Request Date', index=True)
+    # product_uom = fields.Many2one('uom.uom', string='Unit of Measure', domain="[('category_id', '=', product_uom_category_id)]")
+    # product_uom_category_id = fields.Many2one(related='product_id.uom_id.category_id')
 
     _sql_constraints = [
         ('accountable_required_fields',
@@ -88,28 +93,46 @@ class product_lines(models.Model):
     ]
     
     @api.onchange('product_id')
-    def onchange_product_id(self):
-        if not self.product_id:
-            return
+    def _onchange_product_id(self):
+        for rec in self:
+            # lines = [(5, 0, 0)]
+            lines = []
+            print("self.prduct_id", self.product_id.product_variant_ids)
+            for line in self.product_id.product_variant_ids:
+                val = {
+                    'product_id': line.id,
+                    'product_qty': 1,
+                    'product_uom': line.uom_id
+                }
+                lines.append((0, 0, val))
+            print("lines", lines)
+            rec.product_lines = lines
+
+#
+    # @api.onchange('product_id')
+    # def onchange_product_id(self):
+    #     if not self.product_id:
+    #         return
 
     #     Reset date, price and quantity since _onchange_quantity will provide default values
 
-        self.date_planned = datetime.today().strftime(DEFAULT_SERVER_DATETIME_FORMAT)
-        self.price_qty = self.product_uom = 0.0
+#
+    #     self.date_planned = datetime.today().strftime(DEFAULT_SERVER_DATETIME_FORMAT)
+    #     self.price_qty = self.product_uom = 0.0
 
-        self._product_id_change()
+    #     self._product_id_change()
 
-        self._suggest_quantity()
-        self._onchange_quantity()
+    #     self._suggest_quantity()
+    #     self._onchange_quantity()
 
-    def _product_id_change(self):
-        if not self.product_id:
-            return
-
-    @api.onchange('product_qty', 'product_uom')
-    def _onchange_quantity(self):
-        if not self.product_id:
-            return
+    # def _product_id_change(self):
+    #     if not self.product_id:
+    #         return
+#
+    # @api.onchange('product_qty', 'product_uom')
+    # def _onchange_quantity(self):
+    #     if not self.product_id:
+    #         return
         # params = {'order_id': self.order_id}
         # seller = self.product_id._select_seller(
         #     partner_id=self.partner_id,
@@ -144,12 +167,13 @@ class product_lines(models.Model):
     #         else:
     #             line.product_qty = line.product_qty
 
-    def _suggest_quantity(self):
-        '''
-        Suggest a minimal quantity based on the buy
-        '''
-        if not self.product_id:
-            return
+#
+    # def _suggest_quantity(self):
+    #     '''
+    #     Suggest a minimal quantity based on the buy
+    #     '''
+    #     if not self.product_id:
+    #         return
         # seller_min_qty = self.product_id.seller_ids\
         #     .filtered(lambda r: r.name == self.order_id.partner_id and (not r.product_id or r.product_id == self.product_id))\
         #     .sorted(key=lambda r: r.min_qty)
@@ -158,15 +182,16 @@ class product_lines(models.Model):
         #     self.product_uom = seller_min_qty[0].product_uom
         # else:
         #     self.product_qty = 1.0
-
+#
 #       return name
-        return {
-            'product_uom': self.product_uom.id,
-            'product_id': self.product_id.id
-        }
+        # return {
+        #     'product_uom': self.product_uom.id,
+        #     'product_id': self.product_id.id
+        # }
 
 # --------------------- Menu Product -----------------------
 class ProductInfo(models.Model):
+    # _inherit = purchasing.product_info
     _name = 'purchasing.product_info'
     _description = 'purchasing.product_info'
     # _inherit = 'purchasing.stationery'
