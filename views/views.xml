@@ -42,7 +42,7 @@
                                 <field name="product_id"/>
                                 <field name="product_qty"/>
                                 <field name="product_uom"/>
-                                <!-- <field name="description"/> -->
+                                <field name="price_unit"/>
                             </tree>
                         </field>
                     </page>
@@ -60,9 +60,9 @@
           <footer>
               <div class="purchasing">
                   <div id="footer_container">
-                    <h3>
+                    <!-- <h3>
                       Odoo Custom Module Purchasing V.0.0.2
-                    </h3>
+                    </h3> -->
                   </div>
               </div>
           </footer>
@@ -77,8 +77,8 @@
       <field name="arch" type="xml">
         <tree string="Purchasing Stationery Order Lines">
           <field name="code_pr" readonly="1"/>
-          <!-- <field name="product_qty"/> -->
-          <!-- <field name="product_uom"/> -->
+          <field name="product_qty"/>
+          <!-- <field name="price_unit"/> -->
         </tree>
       </field>
     </record>
@@ -90,7 +90,8 @@
         <tree editable="bottom">
           <field name="employee_id"/>
           <field name="type"/>
-          <field name="company_id"/>
+          <!-- <field name="company_id"/> -->
+          <field name="company_name"/>          
         </tree>
       </field>
     </record>
@@ -115,21 +116,21 @@
     <record model="ir.actions.act_window" id="client_form_action1">
       <field name="name">Form</field>
       <field name="res_model">purchasing.stationery</field>
-      <field name="view_mode">form</field>
+      <field name="view_mode">kanban,tree,graph,form</field>
       <field name="view_id" ref="purchasing.form"/>
     </record>
 
     <record model="ir.actions.act_window" id="purchasing.action_form_stationery">
       <field name="name">Form Stationary</field>
       <field name="res_model">purchasing.stationery</field>
-      <field name="view_mode">tree,form</field>
+      <field name="view_mode">kanban,tree,graph,form</field>
       <field name="view_id" ref="purchasing.list"/>
     </record>
 
     <record model="ir.actions.act_window" id="purchasing.action_form_type_request">
       <field name="name">Form Request For Quotation</field>
       <field name="res_model">purchasing.type_request</field>
-      <field name="view_mode">form</field>
+      <field name="view_mode">kanban,tree,graph,form</field>
       <field name="view_id" ref="purchasing.form_type_request"/>
     </record>
   
@@ -137,7 +138,7 @@
     <record model="ir.actions.act_window" id="purchasing.action_form_product_info">
       <field name="name">Form Product</field>
       <field name="res_model">purchasing.product_info</field>
-      <field name="view_mode">kanban,tree,graph</field>
+      <field name="view_mode">kanban,tree,graph,form</field>
       <field name="view_id" ref="purchasing.form_product_info"/>
     </record>
 
