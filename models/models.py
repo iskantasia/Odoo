@@ -20,6 +20,7 @@ class type_request(models.Model) :
 class form_stationery(models.Model):
     _name = 'purchasing.stationery'
     _description = 'purchasing.stationery'
+    _order = 'date_order desc, id desc'
     # _rec_name = 'combination'
     _columns = {
         'code_pr': fields.Char(string='PR Code', help="Auto Generate")
@@ -53,6 +54,16 @@ class form_stationery(models.Model):
     date_planned = fields.Datetime(string='Request Date', index=True)
     product_qty = fields.Float(comodel_name='product.lines', string='Quantity', index=True)
 
+    # partner_id = fields.Many2one('res.partner', related='order_id.partner_id', string='Partner', readonly=True, store=True)
+    # currency_id = fields.Many2one(related='order_id.currency_id', store=True, string='Currency', readonly=True)
+    # date_order = fields.Datetime(related='order_id.date_planned', string='Order Date', readonly=True)
+
+    # amount_untaxed = fields.Monetary(string='Untaxed Amount', store=True, readonly=True, compute='_amount_all', tracking=True)
+    # amount_tax = fields.Monetary(string='Taxes', store=True, readonly=True, compute='_amount_all')
+    # amount_total = fields.Monetary(string='Total', store=True, readonly=True, compute='_amount_all')
+
+    # currency_id = fields.Many2one('res.currency', 'Currency', required=True, states=READONLY_STATES, default=lambda self: self.env.company.currency_id.id)
+
 #   Generate Code PR Auto
     code_pr = fields.Char(string="Code PR", required=True, copy=False, readonly=True,
                           index=True, default=lambda self: _('New PR'))
@@ -66,19 +77,41 @@ class form_stationery(models.Model):
         result = super(form_stationery, self).create(vals)
         return result
 
+    # @api.depends('order_line.price_total')
+    # def _amount_all(self):
+    #     for order in self:
+    #         amount_untaxed = amount_tax = 0.0
+    #         for line in order.order_line:
+    #             line._compute_amount()
+    #             amount_untaxed += line.price_subtotal
+    #             amount_tax += line.price_tax
+    #         order.update({
+    #             'amount_untaxed': order.currency_id.round(amount_untaxed),
+    #             'amount_tax': order.currency_id.round(amount_tax),
+    #             'amount_total': amount_untaxed + amount_tax,
+    #         })
+
 class product_lines(models.Model):
     _name = 'product.lines'
     _description = 'product.lines'
-    # _order = 'order_id'
+    _order = 'order_id'
 
     name = fields.Char(string='Product')
     product_name = fields.Many2one(comodel_name='purchasing.stationery', string='Product Name')
     code_pr = fields.Many2one(comodel_name='purchasing.stationery', string='Code PR')
     product_id = fields.Many2one(comodel_name='product.template', string='Name Product')
-    product_qty = fields.Float(comodel_name='product.lines', string='Quantity', required=True)
     date_planned = fields.Datetime(string='Request Date', index=True)
-    price_unit = fields.Many2one('res.currency', string='Unit Price')
- #  Autofill / Join field product_uom by product_id
+
+
+    # order_id = fields.Many2one('purchasing.stationery', string='Order Reference', index=True, required=True, ondelete='cascade')
+
+    # price_subtotal = fields.Monetary(compute='_compute_amount', string='Subtotal', store=True)
+    # price_total = fields.Monetary(compute='_compute_amount', string='Total', store=True)
+    # price_tax = fields.Float(compute='_compute_amount', string='Tax', store=True)
+
+ #  ---------------------  Autofill / Join field product_uom, product_qty, price_unit by product_id  -----------------------
+    product_qty = fields.Float(comodel_name='product.lines', string='Quantity', required=True)
+    price_unit = fields.Many2one('res.currency', string='Unit Price', )
     product_uom = fields.Many2one('uom.uom', string='Unit Of Measure', default=lambda self: self.env['uom.uom'].search([]))
     # product_uom = fields.Many2one('uom.uom', string='Unit of Measure', domain="[('category_id', '=', product_uom_category_id)]")
     # product_uom_category_id = fields.Many2one(related='product_id.uom_id.category_id')
@@ -107,87 +140,6 @@ class product_lines(models.Model):
                 lines.append((0, 0, val))
             print("lines", lines)
             rec.product_lines = lines
-
-#
-    # @api.onchange('product_id')
-    # def onchange_product_id(self):
-    #     if not self.product_id:
-    #         return
-
-    #     Reset date, price and quantity since _onchange_quantity will provide default values
-
-#
-    #     self.date_planned = datetime.today().strftime(DEFAULT_SERVER_DATETIME_FORMAT)
-    #     self.price_qty = self.product_uom = 0.0
-
-    #     self._product_id_change()
-
-    #     self._suggest_quantity()
-    #     self._onchange_quantity()
-
-    # def _product_id_change(self):
-    #     if not self.product_id:
-    #         return
-#
-    # @api.onchange('product_qty', 'product_uom')
-    # def _onchange_quantity(self):
-    #     if not self.product_id:
-    #         return
-        # params = {'order_id': self.order_id}
-        # seller = self.product_id._select_seller(
-        #     partner_id=self.partner_id,
-        #     quantity=self.product_qty,
-        #     date=self.order_id.date_order and self.order_id.date_order.date(),
-        #     uom_id=self.product_uom,
-        #     params=params)
-
-        # if seller or not self.date_planned:
-        #     self.date_planned = self._get_date_planned(seller).strftime(DEFAULT_SERVER_DATETIME_FORMAT)
-
-        # if not seller:
-        #     if self.product_id.seller_ids.filtered(lambda s: s.name.id == self.partner_id.id):
-        #         self.price_unit = 0.0
-        #     return
-
-        # price_unit = self.env['account.tax']._fix_tax_included_price_company(seller.price, self.product_id.supplier_taxes_id, self.taxes_id, self.company_id) if seller else 0.0
-        # if price_unit and seller and self.order_id.currency_id and seller.currency_id != self.order_id.currency_id:
-        #     price_unit = seller.currency_id._convert(
-        #         price_unit, self.order_id.currency_id, self.order_id.company_id, self.date_order or fields.Date.today())
-
-        # if seller and self.product_uom and seller.product_uom != self.product_uom:
-        #     price_unit = seller.product_uom._compute_price(price_unit, self.product_uom)
-
-        # self.price_unit = price_unit
-
-    # @api.depends('product_uom', 'product_qty', 'product_id')
-    # def _compute_product_qty(self):
-    #     for line in self:
-    #         if line.product_id and line.product_id.uom_id != line.product_uom:
-    #             line.product_qty = line.product_uom._compute_quantity(line.product_qty, line.product_id.uom_id)
-    #         else:
-    #             line.product_qty = line.product_qty
-
-#
-    # def _suggest_quantity(self):
-    #     '''
-    #     Suggest a minimal quantity based on the buy
-    #     '''
-    #     if not self.product_id:
-    #         return
-        # seller_min_qty = self.product_id.seller_ids\
-        #     .filtered(lambda r: r.name == self.order_id.partner_id and (not r.product_id or r.product_id == self.product_id))\
-        #     .sorted(key=lambda r: r.min_qty)
-        # if seller_min_qty:
-        #     self.product_qty = seller_min_qty[0].min_qty or 1.0
-        #     self.product_uom = seller_min_qty[0].product_uom
-        # else:
-        #     self.product_qty = 1.0
-#
-#       return name
-        # return {
-        #     'product_uom': self.product_uom.id,
-        #     'product_id': self.product_id.id
-        # }
 
 # --------------------- Menu Product -----------------------
 class ProductInfo(models.Model):
