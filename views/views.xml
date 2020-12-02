@@ -19,7 +19,7 @@
             </div> -->
             <div>
                 <h1>
-                    <field name="code_pr" readonly="1"/>
+                    <field name="code_pr" readonly="1" style="color:red ! important;" />
                 </h1>
             </div>
             <group>
