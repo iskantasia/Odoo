@@ -20,7 +20,7 @@ class type_request(models.Model) :
 class form_stationery(models.Model):
     _name = 'purchasing.stationery'
     _description = 'purchasing.stationery'
-    _order = 'date_order desc, id desc'
+    # _order = 'date_order desc, id desc'
     # _rec_name = 'combination'
     _columns = {
         'code_pr': fields.Char(string='PR Code', help="Auto Generate")
@@ -77,24 +77,10 @@ class form_stationery(models.Model):
         result = super(form_stationery, self).create(vals)
         return result
 
-    # @api.depends('order_line.price_total')
-    # def _amount_all(self):
-    #     for order in self:
-    #         amount_untaxed = amount_tax = 0.0
-    #         for line in order.order_line:
-    #             line._compute_amount()
-    #             amount_untaxed += line.price_subtotal
-    #             amount_tax += line.price_tax
-    #         order.update({
-    #             'amount_untaxed': order.currency_id.round(amount_untaxed),
-    #             'amount_tax': order.currency_id.round(amount_tax),
-    #             'amount_total': amount_untaxed + amount_tax,
-    #         })
-
 class product_lines(models.Model):
     _name = 'product.lines'
     _description = 'product.lines'
-    _order = 'order_id'
+    # _order = 'order_id'
 
     name = fields.Char(string='Product')
     product_name = fields.Many2one(comodel_name='purchasing.stationery', string='Product Name')
