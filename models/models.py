@@ -3,6 +3,10 @@ from datetime import datetime
 
 from odoo import models, fields, api, _
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
+# from xlrd import open_workbook
+# import base64
+# import xlrd
+# import tempfile
 
 class type_request(models.Model) :
     _name = 'purchasing.type_request'
@@ -26,6 +30,7 @@ class form_stationery(models.Model):
         'code_product': fields.Char(string='CP/', help="Auto Generate")
     }
 
+    # import_xls = fields.Binary('File')
     employee_id = fields.Many2one(comodel_name='res.partner', string='Employee')
     company_id = fields.Many2one(
         comodel_name="res.company",
@@ -69,6 +74,26 @@ class form_stationery(models.Model):
 
     code_product = fields.Char(string="CP/", required=True, copy=False, readonly=True,
                           index=True, default=lambda self: _('CP/'))
+
+    # def import_xls(self):
+    #      wb = xlrd.open_workbook(file_contents=base64.decodestring(self.xls_file))
+    #      for sheet in wb.sheets():
+    #          for row in range(sheet.nrows):
+    #              for col in range(sheet.ncols):
+    #                  print  (sheet.cell(row,col).value)
+
+    # def import_data(self, cr, uid, ids, context=None):
+    #     temp_path = tempfile.gettempdir()
+    #     test_obj = self.pool.get('test.test')
+    #     xls_data = base64.decodestring(xls_file)
+    #     fp=open(temp_path+'/xsl_file.xls', 'wb+')
+    #     fp.write(xls_data)
+    #     fp.close()
+    #     wb = open_workbook(temp_path+'/xsl_file.xls')
+    #     for sheet in wb.sheets():
+    #         for rownum in range(sheet.nrows):
+    #             if rownum == 0:
+    #                 header_list = sheet.row_values(rownum)
 
 #   Function for Generate Code PR
     @api.model
