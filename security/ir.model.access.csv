@@ -2,4 +2,4 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_purchasing_purchasing,purchasing.purchasing,model_purchasing_stationery,base.group_user,1,1,1,1
 access_role_purchasing,purchasing.role,model_purchasing_stationery,purchasing.role_purchasing_user,1,1,1,1
 access_role_purchasing,purchasing.role,model_purchasing_type_request,purchasing.role_purchasing_user,1,1,1,1
-access_role_purchasing_base,purchasing.role_base,model_purchasing_type_request,base.group_user,1,0,0,0
+access_role_purchasing_base,purchasing.role_base,model_purchasing_type_request,base.group_user,1,1,1,1
