@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <report
+        id=""
+        string="Nama Label"
+        model="purchasing.stationery"
+        report_type="qweb-pdf"
+        name="stationery"
+        file="stationery"/>
+
+    <report
+        id=""
+        string="Nama Label"
+        model="purchasing.stationery"
+        report_type="xlsx"
+        name="_xlsx"
+        file="_xlsx"/>
+</odoo>
