@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <report
+    <!-- <report
         id=""
         string="Nama Label"
         model="purchasing.stationery"
@@ -14,5 +14,5 @@
         model="purchasing.stationery"
         report_type="xlsx"
         name="_xlsx"
-        file="_xlsx"/>
+        file="_xlsx"/> -->
 </odoo>
