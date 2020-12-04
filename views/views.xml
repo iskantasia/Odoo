@@ -12,7 +12,8 @@
             <button name="approve" string="Approve" type="object" groups="purchasing.role_purchasing_user"/>
             <!-- Button Print -->
             <!-- <button name="print_report" type="object" string="Print" class="oe_highlight"/> -->
-            <button name="report" type="object" string="Print" class="btn-primary"/>
+            <button name="import_xls" type="object" string="Import From Excel" class="btn-primary"/>
+            <button name="report" type="object" string="Print" class="oe_highlight"/>
           </header>
           <sheet>
             <!-- <div class="ribbon-wrapper2">
