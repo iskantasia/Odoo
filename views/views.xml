@@ -11,7 +11,8 @@
             <!-- Button Approve -->
             <button name="approve" string="Approve" type="object" groups="purchasing.role_purchasing_user"/>
             <!-- Button Print -->
-            <button name="print_report" type="object" string="Print" class="oe_highlight"/>
+            <!-- <button name="print_report" type="object" string="Print" class="oe_highlight"/> -->
+            <button name="report" type="object" string="Print" class="btn-primary"/>
           </header>
           <sheet>
             <!-- <div class="ribbon-wrapper2">
@@ -19,7 +20,8 @@
             </div> -->
             <div>
                 <h1>
-                    <field name="code_pr" readonly="1" style="color:red ! important;" />
+                    <field name="code_pr" string="PR/" readonly="1" style="color:red ! important;" />
+                    <field name="code_product" string="CP/" readonly="1" style="color:red ! important;" />
                 </h1>
             </div>
             <group>
@@ -37,7 +39,7 @@
                         <field name="product_id">
                             <tree editable="bottom">
                                 <control>
-                                     <create name="add_product_control" string="Add a product"/>
+                                  <create name="add_product_control" string="Add a product"/>
                                 </control>
                                 <field name="product_id"/>
                                 <field name="product_qty"/>
@@ -60,9 +62,12 @@
           <footer>
               <div class="purchasing">
                   <div id="footer_container">
-                    <!-- <h3>
-                      Odoo Custom Module Purchasing V.0.0.2
-                    </h3> -->
+                    <center>
+                      <h4
+                        style="color:red ! important;">
+                        Odoo Custom Module <a href="https://www.jababeka.com/">Purchasing</a> V.0.0.2
+                      </h4>
+                    </center>
                   </div>
               </div>
           </footer>
@@ -77,6 +82,7 @@
       <field name="arch" type="xml">
         <tree string="Purchasing Stationery Order Lines">
           <field name="code_pr" readonly="1"/>
+          <field name="code_product" readonly="1"/>
           <field name="product_qty"/>
           <!-- <field name="price_unit"/> -->
         </tree>
@@ -112,6 +118,16 @@
       </field>
     </record>
 
+    <!-- <record model="ir.ui.view" id="product.product">
+      <field name="name">Form Keterangan Produk</field>
+      <field name="model">product.product</field>
+      <<field name="inherit_id" ref="product.product"/>
+      <field name="arch" type="xml">
+        <tree string="Keterangan Produk">
+        </tree>
+      </field>
+    </record> -->
+
     <!-- actions opening views on models -->
     <record model="ir.actions.act_window" id="client_form_action1">
       <field name="name">Form</field>
@@ -142,6 +158,12 @@
       <field name="view_id" ref="purchasing.form_product_info"/>
     </record>
 
+    <!-- <record model="ir.actions.act_window" id="product.product">
+      <field name="name">Form Product</field>
+      <field name="res_model">product.product</field>
+      <field name="view_mode">kanban,tree,graph,form</field>
+      <field name="view_id" ref="product.product"/>
+    </record> -->
     <!-- server action to the one above -->
 
     <!-- Top menu item -->
@@ -166,6 +188,10 @@
             id="purchasing_form_product_info"
             parent="purchasing.menu_2"
             action="purchasing.action_form_product_info"/>     
+    <!-- <menuitem name="Keterangan Product"
+            id="product.product"
+            parent="purchasing.menu_2"
+            action="product.product"/>     -->
 
   </data>
 </odoo>
