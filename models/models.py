@@ -21,9 +21,9 @@ class form_stationery(models.Model):
     _name = 'purchasing.stationery'
     _description = 'purchasing.stationery'
     # _order = 'date_order desc, id desc'
-    # _rec_name = 'combination'
     _columns = {
-        'code_pr': fields.Char(string='PR Code', help="Auto Generate")
+        'code_pr': fields.Char(string='PR/', help="Auto Generate"),
+        'code_product': fields.Char(string='CP/', help="Auto Generate")
     }
 
     employee_id = fields.Many2one(comodel_name='res.partner', string='Employee')
@@ -31,7 +31,6 @@ class form_stationery(models.Model):
         comodel_name="res.company",
         string="Company"
     )
-    # company_id = fields.Char(related='employee_id.company_id')
 
     product_id = fields.One2many(
         comodel_name='product.lines',
@@ -65,17 +64,33 @@ class form_stationery(models.Model):
     # currency_id = fields.Many2one('res.currency', 'Currency', required=True, states=READONLY_STATES, default=lambda self: self.env.company.currency_id.id)
 
 #   Generate Code PR Auto
-    code_pr = fields.Char(string="Code PR", required=True, copy=False, readonly=True,
-                          index=True, default=lambda self: _('New PR'))
+    code_pr = fields.Char(string="PR/", required=True, copy=False, readonly=True,
+                          index=True, default=lambda self: _('PR/'))
+
+    code_product = fields.Char(string="CP/", required=True, copy=False, readonly=True,
+                          index=True, default=lambda self: _('CP/'))
 
 #   Function for Generate Code PR
     @api.model
     def create(self, vals):
-        if vals.get('code_pr', _('New PR')) == _('New PR'):
+        if vals.get('code_pr', _('PR/')) == _('PR/'):
 #   Untuk memanggil metode ORM langsung dari sebuah object
-            vals['code_pr'] = self.env['ir.sequence'].next_by_code('purchasing.stationery.sequence') or _('New PR')
+            vals['code_pr'] = self.env['ir.sequence'].next_by_code('purchasing.stationery.sequence') or _('PR/')
+        result = super(form_stationery, self).create(vals)
+
+    @api.model
+    def create(self, vals):
+        if vals.get('code_product', _('CP/')) == _('CP/'):
+            vals['code_product'] = self.env['ir.sequence'].next_by_code('purchasing.stationery.sequence1') or _('CP/')
         result = super(form_stationery, self).create(vals)
         return result
+
+    # @api.multi
+    # def report(self):
+    #     return self.env.ref('purchasing.stationery.report').report(self)
+    #     self.filtered(lambda s: s.state == 'draft').write({'state' : 'sent'})
+    #     return self.env.ref('purchasing.stationery.report')\
+    #     .with_context({'discard_logo_check': True}).report_action(self)
 
 class product_lines(models.Model):
     _name = 'product.lines'
@@ -84,10 +99,10 @@ class product_lines(models.Model):
 
     name = fields.Char(string='Product')
     product_name = fields.Many2one(comodel_name='purchasing.stationery', string='Product Name')
-    code_pr = fields.Many2one(comodel_name='purchasing.stationery', string='Code PR')
+    code_pr = fields.Many2one(comodel_name='purchasing.stationery', string='PR/')
+    code_product = fields.Many2one(comodel_name='purchasing.stationery', string='CP/')
     product_id = fields.Many2one(comodel_name='product.template', string='Name Product')
     date_planned = fields.Datetime(string='Request Date', index=True)
-
 
     # order_id = fields.Many2one('purchasing.stationery', string='Order Reference', index=True, required=True, ondelete='cascade')
 
@@ -121,7 +136,8 @@ class product_lines(models.Model):
                 val = {
                     'product_id': line.id,
                     'product_qty': 1,
-                    'product_uom': line.uom_id
+                    'product_uom': line.id,
+                    'unit_price': line.id
                 }
                 lines.append((0, 0, val))
             print("lines", lines)
@@ -138,3 +154,10 @@ class ProductInfo(models.Model):
     }
     info_product = fields.Char(string='Information')
     state = fields.Char(string='Status')
+
+class ProductProduct(models.Model):
+    _inherit = 'product.product'
+    # _columns = {
+    #     'ket': fields.Char('Keterangan')
+    # }
+    keterangan = fields.Char(string='Keterangan')
