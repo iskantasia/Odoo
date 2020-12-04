@@ -11,7 +11,7 @@
     """,
 
     'author': "PT. Jababeka & Co",
-    'website': "http://www.yourcompany.com",
+    'website': "https://www.jababeka.com",
 
     # Categories can be used to filter modules in modules listing
     # Check https://github.com/odoo/odoo/blob/13.0/odoo/addons/base/data/ir_module_category_data.xml
@@ -20,15 +20,17 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base'],
+    'depends': ['base', 'purchase', 'product'],
 
     # always loaded
     'data': [
         'security/role.xml',
         'security/ir.model.access.csv',
         'views/sequence.xml',
+        'views/sequence1.xml',
         'views/views.xml',
         'views/templates.xml',
+        'views/report.xml'
     #   'views/purchasing_menu.xml',
     ],
 
