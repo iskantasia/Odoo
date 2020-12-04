@@ -7,7 +7,7 @@
         subtitle on modules listing or apps.openerp.com""",
 
     'description': """
-        Long description of module's purpose
+        Custom Module Purchasing V.0.0.2 - Odoo V.11.12.13
     """,
 
     'author': "PT. Jababeka & Co",
