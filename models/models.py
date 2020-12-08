@@ -13,21 +13,18 @@ class type_request(models.Model) :
     _description = 'purchasing.type_request'
     _rec_name = 'type'
 
+    type = fields.Char(string='type')
     employee_id = fields.Many2one(comodel_name='res.partner', string='Employee')
-    company_id = fields.Many2one(
-        comodel_name="res.company",
-        string="Company"
-    )
+    company_id = fields.Many2one(comodel_name='res.company', string='Company')
     company_name = fields.Char(related='employee_id.company_name')
-    type = fields.Char()
 
 class form_stationery(models.Model):
     _name = 'purchasing.stationery'
     _description = 'purchasing.stationery'
     # _order = 'date_order desc, id desc'
     _columns = {
-        'code_pr': fields.Char(string='PR/', help="Auto Generate"),
-        'code_product': fields.Char(string='CP/', help="Auto Generate")
+        'code_pr': fields.Char(string='PR', help="Auto Generate")
+        # 'code_product': fields.Char(string='CP/', help="Auto Generate")
     }
 
     # import_xls = fields.Binary('File')
@@ -56,7 +53,11 @@ class form_stationery(models.Model):
     user_id = fields.Many2one('res.users', string=' Purchase Representative')
     payment_term_id = fields.Many2one('account.payment.term', string='Payment Terms')
     date_planned = fields.Datetime(string='Request Date', index=True)
-    product_qty = fields.Float(comodel_name='product.lines', string='Quantity', index=True)
+    product_qty = fields.Many2one('product.lines', string='Quantity', index=True)
+    date_from = fields.Datetime(string='From')
+    date_to = fields.Date(sting='To')
+    # image = field.Binary(string="Image")
+    active = fields.Boolean('Active', default=True)
 
     # partner_id = fields.Many2one('res.partner', related='order_id.partner_id', string='Partner', readonly=True, store=True)
     # currency_id = fields.Many2one(related='order_id.currency_id', store=True, string='Currency', readonly=True)
@@ -69,11 +70,60 @@ class form_stationery(models.Model):
     # currency_id = fields.Many2one('res.currency', 'Currency', required=True, states=READONLY_STATES, default=lambda self: self.env.company.currency_id.id)
 
 #   Generate Code PR Auto
-    code_pr = fields.Char(string="PR/", required=True, copy=False, readonly=True,
-                          index=True, default=lambda self: _('PR/'))
+    code_pr = fields.Char(string="PR", required=True, copy=False, readonly=True,
+                          index=True, default=lambda self: _('PR'))
 
-    code_product = fields.Char(string="CP/", required=True, copy=False, readonly=True,
-                          index=True, default=lambda self: _('CP/'))
+    # code_product = fields.Char(string="CP/", required=True, copy=False, readonly=True,
+    #                       index=True, default=lambda self: _('CP/'))
+    # @api.depends('')
+    # def set__group(self):
+    #     for rec in self:
+    #         if rec._:
+    #             if ._ < 18:
+    #                 rec._group = 'min'
+    #             else:
+    #                 rec._group = 'max'
+
+    # def open__(self):
+    #     print("")
+
+    
+    # def records_import(self, cr, uid, ids, context=None):
+    #     supplier_obj = self.pool.get('res.partner')
+    #     for price in self.browse(cr, uid, ids, context=context):
+    #         fileName, fileExtension = os.path.splitext(price.file_to_import_fname)
+    #         if fileExtension != '.csv':
+    #             raise osv.except_osv(_("Warning !"), _("Change the file type as CSV"))
+    #         price_file = unicode(base64.decodestring(price.import_payment), 'windows-1252', 'strict').split('\n')
+    #         line_count = 0
+    #         ss = len(price_file)
+    #         for line in price_file:
+    #             line_count += 1
+    #             if line_count > 1:
+    #                 if  line_count < ss -1:
+    #                     line_contents = line.split(',')
+    #                     if not line_contents:
+    #                         break
+    #                     Name = line_contents[0].strip()
+    #                     Amount = line_contents[1].strip()
+    #                     supplier_id = supplier_obj.search(cr, uid, [('name', '=', Name)])
+    #                     if supplier_id == []:
+    #                         supplier = {
+    #                             'name':Name
+    #                         }
+    #                         new_supplier = supplier_obj.create(cr, uid, supplier)
+    #                     else:
+    #                         for supp in supplier_obj.browse(cr, uid, supplier_id):
+    #                             new_supplier = supp.id
+    #                     price_line_exist = self.pool.get('sample.lines').search(cr, uid, [('name', '=', new_supplier),('payment_id', '=', price.id),('amount', '=', Amount)])
+    #                     if price_line_exist == []:
+    #                         price_upload_dict = {
+    #                                                 'name' : new_supplier,
+    #                                                 'amount': Amount
+    #                                             }
+    #                         self.pool.get('sample.lines').create(cr, uid, price_upload_dict)
+    #         self.write(cr, uid, price.id,{'upload':True},context=context)
+    #     return {}
 
     # def import_xls(self):
     #      wb = xlrd.open_workbook(file_contents=base64.decodestring(self.xls_file))
@@ -98,18 +148,19 @@ class form_stationery(models.Model):
 #   Function for Generate Code PR
     @api.model
     def create(self, vals):
-        if vals.get('code_pr', _('PR/')) == _('PR/'):
+        if vals.get('code_pr', _('PR')) == _('PR'):
 #   Untuk memanggil metode ORM langsung dari sebuah object
-            vals['code_pr'] = self.env['ir.sequence'].next_by_code('purchasing.stationery.sequence') or _('PR/')
+            vals['code_pr'] = self.env['ir.sequence'].next_by_code('purchasing.stationery.sequence') or _('PR')
         result = super(form_stationery, self).create(vals)
 
-    @api.model
-    def create(self, vals):
-        if vals.get('code_product', _('CP/')) == _('CP/'):
-            vals['code_product'] = self.env['ir.sequence'].next_by_code('purchasing.stationery.sequence1') or _('CP/')
-        result = super(form_stationery, self).create(vals)
+    # @api.model
+    # def create(self, vals):
+    #     if vals.get('code_product', _('CP/')) == _('CP/'):
+    #         vals['code_product'] = self.env['ir.sequence'].next_by_code('purchasing.stationery.sequence1') or _('CP/')
+    #     result = super(form_stationery, self).create(vals)
         return result
 
+# --------------------------------- Print / Report ---------------------------------
     # @api.multi
     # def report(self):
     #     return self.env.ref('purchasing.stationery.report').report(self)
@@ -124,8 +175,8 @@ class product_lines(models.Model):
 
     name = fields.Char(string='Product')
     product_name = fields.Many2one(comodel_name='purchasing.stationery', string='Product Name')
-    code_pr = fields.Many2one(comodel_name='purchasing.stationery', string='PR/')
-    code_product = fields.Many2one(comodel_name='purchasing.stationery', string='CP/')
+    code_pr = fields.Many2one(comodel_name='purchasing.stationery', string='PR')
+    # code_product = fields.Many2one(comodel_name='purchasing.stationery', string='CP/')
     product_id = fields.Many2one(comodel_name='product.template', string='Name Product')
     date_planned = fields.Datetime(string='Request Date', index=True)
 
@@ -136,11 +187,9 @@ class product_lines(models.Model):
     # price_tax = fields.Float(compute='_compute_amount', string='Tax', store=True)
 
  #  ---------------------  Autofill / Join field product_uom, product_qty, price_unit by product_id  -----------------------
-    product_qty = fields.Float(comodel_name='product.lines', string='Quantity', required=True)
+    product_qty = fields.Float(string='Quantity', required=True)
     price_unit = fields.Many2one('res.currency', string='Unit Price', )
     product_uom = fields.Many2one('uom.uom', string='Unit Of Measure', default=lambda self: self.env['uom.uom'].search([]))
-    # product_uom = fields.Many2one('uom.uom', string='Unit of Measure', domain="[('category_id', '=', product_uom_category_id)]")
-    # product_uom_category_id = fields.Many2one(related='product_id.uom_id.category_id')
 
     _sql_constraints = [
         ('accountable_required_fields',
@@ -150,7 +199,7 @@ class product_lines(models.Model):
             "CHECK(display_type IS NULL OR (product_id IS NULL AND price_unit = 0 AND product_uom IS NULL AND date_planned is NULL))",
             "Forbidden values on non-accountable purchase order line"),
     ]
-    
+
     @api.onchange('product_id')
     def _onchange_product_id(self):
         for rec in self:
@@ -170,19 +219,74 @@ class product_lines(models.Model):
 
 # --------------------- Menu Product -----------------------
 class ProductInfo(models.Model):
-    # _inherit = purchasing.product_info
     _name = 'purchasing.product_info'
-    _description = 'purchasing.product_info'
-    # _inherit = 'purchasing.stationery'
-    _columns = {
-        'info_product': fields.Char('Information')
-    }
-    info_product = fields.Char(string='Information')
-    state = fields.Char(string='Status')
 
+    name = fields.Char(compute='_compute_name', store="True")
+    info_product = fields.Char(string='Information')
+    state = fields.Char(string='State', store=True)
+    employee_id = fields.Many2one(comodel_name='res.partner', string='Employee')
+    company_id = fields.Many2one(comodel_name='res.company', string='Company')
+
+    @api.depends('info_product','state')
+    def _compute_name(self):
+        for record in self:
+            record.name = str(record.info_product)+str(record.state)
+
+#     @api.model
+#     def create(self, vals):
+#         if vals.get('info_product', _('New')) == _('New'):
+#             vals['info_product'] = self.env['ir.sequence_info'].next_by_code('purchasing.product_info.sequence_info') or _('New')
+#         result = super(ProductInfo, self).create(vals)
+
+    # def onchange_info_state(self, cr, uid, ids, info_product, state, context=None):
+    #     v = {}
+    #     if info_product and state:
+    #         v['name'] = info_product+state
+    #     return {'value': v}
+
+    # @api.model
+    # def create(self, vals):
+    #     if vals['info_product']:
+    #         info_product = vals['info_product'].title()
+    #     else:
+    #         info_product = ''
+    #     if vals['state']:
+    #         state = vals['state'].title()
+    #     else:
+    #         state = ''
+    #         name = "{}, {}".format(state, info_product,)
+    #     print 'name', name
+    #         vals['name'] = name
+    #         vals['info_product'] = info_product
+    #         vals['state'] = state
+        # if 'address_id' in vals:
+        #     res_id = super(HrEmployee, self).create(vals)
+        # return
+        # return res_id
+
+# --------------------- Inherit Model Product -----------------------
 class ProductProduct(models.Model):
     _inherit = 'product.product'
-    # _columns = {
-    #     'ket': fields.Char('Keterangan')
-    # }
-    keterangan = fields.Char(string='Keterangan')
+
+    # infoproduct = fields.Many2one('purchasing.product_info', string='Info Product')
+    # state_product = fields.Char(related='infoproduct.state_product', string='State Product')
+
+# class PurchaseOrder(models.Model):
+#     _name = "purchase.order"
+#     _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin']
+#     _description = "Purchase Order"
+#     _order = 'date_order desc, id desc'
+
+    # @api.depends('order_line.price_total')
+    # def _amount_all(self):
+    #     for order in self:
+    #         amount_untaxed = amount_tax = 0.0
+    #         for line in order.order_line:
+    #             line._compute_amount()
+    #             amount_untaxed += line.price_subtotal
+    #             amount_tax += line.price_tax
+    #         order.update({
+    #             'amount_untaxed': order.currency_id.round(amount_untaxed),
+    #             'amount_tax': order.currency_id.round(amount_tax),
+    #             'amount_total': amount_untaxed + amount_tax,
+    #         })
