@@ -1,7 +1,7 @@
 <odoo>
   <data>
     <!-- explicit list view definition -->
-
+    <!-- <img src="/module_name/static/src/img/purchase_icon.png"/> -->
     <record model="ir.ui.view" id="purchasing.form">
       <field name="name">Form Purchasing</field>
       <field name="model">purchasing.stationery</field>
@@ -15,14 +15,18 @@
             <button name="import_xls" type="object" string="Import From Excel" class="btn-primary"/>
             <button name="report" type="object" string="Print" class="oe_highlight"/>
           </header>
+          <widget name="web_ribbon" title="Desember 2020" bg_color="bg-danger" attrs="{'invisible': [('code_pr', '=', True)]}"/>
           <sheet>
-            <!-- <div class="ribbon-wrapper2">
-              <div class="ribbon btn btn-danger">Offer</div>
-            </div> -->
-            <div>
+            <div class="oe_button_box" name="button_box">
+              <button name="open" string="purchasing" type="object" class="oe_stat_button" icon="fa-archive">
+              </button>
+              <button name="open" string="purchasing" type="object" class="oe_stat_button" icon="fa-calendar">
+              </button>
+            </div>
+            <div class="oe_title">
                 <h1>
-                    <field name="code_pr" string="PR/" readonly="1" style="color:red ! important;" />
-                    <field name="code_product" string="CP/" readonly="1" style="color:red ! important;" />
+                    <field name="code_pr" string="PR" readonly="1" style="color:red ! important;" />
+                    <!-- <field name="code_product" string="CP/" readonly="1" style="color:red ! important;" /> -->
                 </h1>
             </div>
             <group>
@@ -55,6 +59,8 @@
                             <field name="payment_term_id"/>
                         </group>
                         <group>
+                            <!-- <field name="date_from" widget="daterange" option="{'related_en'}/>
+                            <field name="date_to"/> -->
                             <field name="notes" class="oe_inline" placeholder="Define your terms and conditions ..."/>
                         </group>
                     </page>
@@ -66,7 +72,7 @@
                     <center>
                       <h4
                         style="color:red ! important;">
-                        Odoo Custom Module <a href="https://www.jababeka.com/">Purchasing</a> V.0.0.2
+                        Odoo Custom Module <u><a href="https://www.jababeka.com/">Purchasing</a></u> V.0.0.2
                       </h4>
                     </center>
                   </div>
@@ -83,7 +89,7 @@
       <field name="arch" type="xml">
         <tree string="Purchasing Stationery Order Lines">
           <field name="code_pr" readonly="1"/>
-          <field name="code_product" readonly="1"/>
+          <!-- <field name="code_product" readonly="1"/> -->
           <field name="product_qty"/>
           <!-- <field name="price_unit"/> -->
         </tree>
@@ -94,7 +100,8 @@
       <field name="name">Form Request For Quotation</field>
       <field name="model">purchasing.type_request</field>
       <field name="arch" type="xml">
-        <tree editable="bottom">
+        <tree>
+        <!-- <tree editable="bottom"> -->
           <field name="employee_id"/>
           <field name="type"/>
           <!-- <field name="company_id"/> -->
@@ -109,13 +116,22 @@
       <field name="model">purchasing.product_info</field>
       <field name="arch" type="xml">
         <tree>
+          <field name="employee_id"/>
+          <field name="company_id"/>
           <field name="info_product"/>
           <field name="state"/>
+          <!-- <field name="info_product" on_change="onchange_info_state(info_product, state, context)"/>
+          <field name="state" on_change="onchange_info_state(info_product, state, context)"/> -->
+          <!-- <label for="info_product and state"/>
+          <div>
+            <field name="info_product" class="form_product_info"/>
+            <field name="state" class="form_product_info" />
+          </div> -->
         </tree>
           <!-- <field name="info_product" position="after">
               <field name="state"/>
-          </field> -->
-          <!-- <field name="info_product" attrs="{'column_invisible': [('parent.state', 'not in', ['info_product', 'done'])]}"/> -->
+          </field>
+          <field name="info_product" attrs="{'column_invisible': [('parent.state', 'not in', ['info_product', 'done'])]}"/> -->
       </field>
     </record>
 
