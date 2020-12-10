@@ -3,8 +3,7 @@
     'name': "Purchase Bayu",
 
     'summary': """
-        Short (1 phrase/line) summary of the module's purpose, used as
-        subtitle on modules listing or apps.openerp.com""",
+        Custom Module Purchasing V.0.0.2 - Odoo V.11.12.13 https://www.jababeka.com""",
 
     'description': """
         Custom Module Purchasing V.0.0.2 - Odoo V.11.12.13
@@ -32,10 +31,12 @@
         'security/role.xml',
         'security/ir.model.access.csv',
         'views/sequence.xml',
-        'views/sequence1.xml',
+        # 'views/sequence1.xml',
         'views/views.xml',
         'views/templates.xml',
         'views/report.xml'
+        # 'purchasing/stationery.PNG',
+        # 'description/purchase_icon.png'
     #   'views/purchasing_menu.xml',
     ],
 
