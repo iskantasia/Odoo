@@ -27,12 +27,17 @@ class form_stationery(models.Model):
         # 'code_product': fields.Char(string='CP/', help="Auto Generate")
     }
 
+    READONLY_STATES = {
+        'purchase': [('readonly', True)],
+        'done': [('readonly', True)],
+        'cancel': [('readonly', True)],
+    }
+
     # import_xls = fields.Binary('File')
     employee_id = fields.Many2one(comodel_name='res.partner', string='Employee')
-    company_id = fields.Many2one(
-        comodel_name="res.company",
-        string="Company"
-    )
+    company_id = fields.Many2one(comodel_name='res.company', string='Company')
+
+    # company_id = fields.Many2one('res.company', 'Company', required=True, index=True, states=READONLY_STATES, default=lambda self: self.env.company.id)
 
     product_id = fields.One2many(
         comodel_name='product.lines',
@@ -59,7 +64,11 @@ class form_stationery(models.Model):
     # image = field.Binary(string="Image")
     active = fields.Boolean('Active', default=True)
 
+    # partner_id = fields.Many2one('res.partner', string='Vendor', required=True, states=READONLY_STATES, change_default=True, tracking=True, domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]", help="You can find a vendor by its Name, TIN, Email or Internal Reference.")
     # partner_id = fields.Many2one('res.partner', related='order_id.partner_id', string='Partner', readonly=True, store=True)
+    # dest_address_id = fields.Many2one('res.partner', domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]", string='Drop Ship Address', states=READONLY_STATES,
+    #     help="Put an address if you want to deliver directly from the vendor to the customer. "
+    #         "Otherwise, keep empty to deliver to your own company.")
     # currency_id = fields.Many2one(related='order_id.currency_id', store=True, string='Currency', readonly=True)
     # date_order = fields.Datetime(related='order_id.date_planned', string='Order Date', readonly=True)
 
@@ -68,6 +77,17 @@ class form_stationery(models.Model):
     # amount_total = fields.Monetary(string='Total', store=True, readonly=True, compute='_amount_all')
 
     # currency_id = fields.Many2one('res.currency', 'Currency', required=True, states=READONLY_STATES, default=lambda self: self.env.company.currency_id.id)
+
+    state = fields.Selection([
+        ('draft', 'RFQ'),   
+        ('sent', 'RFQ Sent'),
+        ('to approve', 'To Approve'),
+        ('purchase', 'Purchase Order'),
+        ('done', 'Locked'),
+        ('cancel', 'Cancelled')
+    ], string='Status', readonly=True, index=True, copy=False, default='draft', tracking=True)
+    # state = fields.Many2one(comodel_name='purchasing.product_info', string='State', store=True)
+    order_line = fields.One2many('purchase.order.line', 'order_id', string='Order Lines', states={'cancel': [('readonly', True)], 'done': [('readonly', True)]}, copy=True)
 
 #   Generate Code PR Auto
     code_pr = fields.Char(string="PR", required=True, copy=False, readonly=True,
@@ -86,7 +106,6 @@ class form_stationery(models.Model):
 
     # def open__(self):
     #     print("")
-
     
     # def records_import(self, cr, uid, ids, context=None):
     #     supplier_obj = self.pool.get('res.partner')
@@ -168,6 +187,63 @@ class form_stationery(models.Model):
     #     return self.env.ref('purchasing.stationery.report')\
     #     .with_context({'discard_logo_check': True}).report_action(self)
 
+    def action_rfq_send(self):
+        '''
+        This function opens a window to compose an email, with the edi purchase template message loaded by default
+        '''
+        self.ensure_one()
+        ir_model_data = self.env['ir.model.data']
+        try:
+            if self.env.context.get('send_rfq', False):
+                template_id = ir_model_data.get_object_reference('purchase', 'email_template_edi_purchase')[1]
+            else:
+                template_id = ir_model_data.get_object_reference('purchase', 'email_template_edi_purchase_done')[1]
+        except ValueError:
+            template_id = False
+        try:
+            compose_form_id = ir_model_data.get_object_reference('mail', 'email_compose_message_wizard_form')[1]
+        except ValueError:
+            compose_form_id = False
+        ctx = dict(self.env.context or {})
+        ctx.update({
+            'default_model': 'purchasing.stationery',
+            'active_model': 'purchasing.stationery',
+            'active_id': self.ids[0],
+            'default_res_id': self.ids[0],
+            'default_use_template': bool(template_id),
+            'default_template_id': template_id,
+            'default_composition_mode': 'comment',
+            'custom_layout': "mail.mail_notification_paynow",
+            'force_email': True,
+            'mark_rfq_as_sent': True,
+        })
+
+        # In the case of a RFQ or a PO, we want the "View..." button in line with the state of the
+        # object. Therefore, we pass the model description in the context, in the language in which
+        # the template is rendered.
+        lang = self.env.context.get('lang')
+        if {'default_template_id', 'default_model', 'default_res_id'} <= ctx.keys():
+            template = self.env['mail.template'].browse(ctx['default_template_id'])
+            if template and template.lang:
+                lang = template._render_template(template.lang, ctx['default_model'], ctx['default_res_id'])
+
+        self = self.with_context(lang=lang)
+        if self.state in ['draft', 'sent']:
+            ctx['model_description'] = _('Request for Quotation')
+        else:
+            ctx['model_description'] = _('Purchase Order')
+
+        return {
+            'name': _('Compose Email'),
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'mail.compose.message',
+            'views': [(compose_form_id, 'form')],
+            'view_id': compose_form_id,
+            'target': 'new',
+            'context': ctx,
+        }
+
 class product_lines(models.Model):
     _name = 'product.lines'
     _description = 'product.lines'
@@ -221,16 +297,17 @@ class product_lines(models.Model):
 class ProductInfo(models.Model):
     _name = 'purchasing.product_info'
 
-    name = fields.Char(compute='_compute_name', store="True")
+    # name = fields.Char(store="True")
+    # name = fields.Char(compute='_compute_name', store="True")
     info_product = fields.Char(string='Information')
-    state = fields.Char(string='State', store=True)
+    # state = fields.Char(string='State', store=True)
     employee_id = fields.Many2one(comodel_name='res.partner', string='Employee')
     company_id = fields.Many2one(comodel_name='res.company', string='Company')
 
-    @api.depends('info_product','state')
-    def _compute_name(self):
-        for record in self:
-            record.name = str(record.info_product)+str(record.state)
+    # @api.depends('info_product','state')
+    # def _compute_name(self):
+    #     for record in self:
+    #         record.name = str(record.info_product)+str(record.state)
 
 #     @api.model
 #     def create(self, vals):
@@ -259,10 +336,10 @@ class ProductInfo(models.Model):
     #         vals['name'] = name
     #         vals['info_product'] = info_product
     #         vals['state'] = state
-        # if 'address_id' in vals:
-        #     res_id = super(HrEmployee, self).create(vals)
+    #     if 'address_id' in vals:
+    #         res_id = super(HrEmployee, self).create(vals)
+    #     return res_id
         # return
-        # return res_id
 
 # --------------------- Inherit Model Product -----------------------
 class ProductProduct(models.Model):
