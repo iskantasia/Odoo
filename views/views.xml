@@ -1,58 +1,33 @@
 <odoo>
   <data>
+
     <!-- explicit list view definition -->
     <record model="ir.ui.view" id="purchasing.form">
-      <!-- <img src="/module_name/static/src/img/purchase_icon.png"/> -->
       <field name="name">Form Purchasing</field>
       <field name="model">purchasing.stationery</field>
       <field name="arch" type="xml">
         <form>
           <header>
             <button name="action_rfq_send" state="draft" string="Send by Email" type="object" context="{'send_rfq':True}" class="oe_highlight"/>
-            <!-- <button name="print_quotation" string="Print RFQ" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>
-            <button name="button_confirm" type="object" states="sent" string="Confirm Order" class="oe_highlight" id="bid_confirm"/>
-            <button name="button_approve" type="object" states='to approve' string="Approve Order" class="oe_highlight" groups="purchase.group_purchase_manager"/> -->
-            <!-- <button name="action_view_invoice" string="Create Bill" type="object" class="oe_highlight" context="{'create_bill':True}" attrs="{'invisible': ['|', ('state', 'not in', ('purchase', 'done')), ('invoice_status', 'in', ('no', 'invoiced'))]}"/> -->
-            <!-- <button name="action_rfq_send" states="sent" string="Re-Send by Email" type="object" context="{'send_rfq':True}"/>
-            <button name="print_quotation" string="Print RFQ" type="object" states="sent" groups="base.group_user"/>
-            <button name="button_confirm" type="object" states="draft" string="Confirm Order" id="draft_confirm"/>
-            <button name="action_rfq_send" states="purchase" string="Send PO by Email" type="object" context="{'send_rfq':False}"/> -->
-            <!-- <button name="action_view_invoice" string="Create Bill" type="object" context="{'create_bill':True}" attrs="{'invisible': ['|', '|', ('state', 'not in', ('purchase', 'done')), ('invoice_status', 'not in', ('no', 'invoiced')), ('order_line', '=', [])]}"/> -->
-            <!-- <button name="button_draft" states="cancel" string="Set to Draft" type="object" />
-            <button name="button_cancel" states="draft,to approve,sent,purchase" string="Cancel" type="object" />
-            <button name="button_done" type="object" string="Lock" states="purchase"/>
-            <button name="button_unlock" type="object" string="Unlock" states="done" groups="purchase.group_purchase_manager"/>
-            <field name="state" widget="statusbar" statusbar_visible="draft,sent,purchase" readonly="1"/> -->
-            <!-- Button -->
             <button name="action_confirm" type="object" string="Confirm" class="oe_highlight"/>
-            <!-- <button name="action_confirm" type="object" string="Confirm" class="oe_highlight" states="draft"/> -->
-            <!-- <button name="action_done" type="object" string="Done" class="oe_hightlight" states="confirm"
-                    attrs="{'invisible': [('state','!=', 'confirm')]}"/> -->
             <button name="delete_lines" type="object" string="Delete" class="oe_hightlight"/>
-            <!-- <field name="state" widget="status_bar" statusbar_visible="draft,confirm,done"/> -->
             <button name="approve" string="Approve" type="object" groups="purchasing.role_purchasing_user"/>
-            <!-- Button Print -->
-            <!-- <button name="print_report" type="object" string="Print" class="oe_highlight"/> -->
-            <!-- <button name="import_xls" type="object" string="Import From Excel" class="btn-primary"/>
-            <button name="report" type="object" string="Print" class="oe_highlight"/> -->
           </header>
-          <!-- <widget name="web_ribbon" title="Desember 2020" bg_color="bg-danger" attrs="{'invisible': [('code_pr', '=', True)]}"/> -->
           <sheet>
             <div class="oe_button_box" name="button_box">
-              <button name="open" string="purchasing" type="object" class="oe_stat_button" icon="fa-archive">
+              <button name="open" string="Archive" type="object" class="oe_stat_button" icon="fa-archive">
               </button>
-              <button name="open" string="purchasing" type="object" class="oe_stat_button" icon="fa-calendar">
+              <button name="open" string="Calendar" type="object" class="oe_stat_button" icon="fa-calendar">
               </button>
             </div>
             <div class="oe_title">
                 <h1>
                     <field name="code_pr" string="PR" readonly="1" style="color:red ! important;" />
-                    <!-- <field name="code_product" string="CP/" readonly="1" style="color:red ! important;" /> -->
                 </h1>
             </div>
             <group>
                 <group>
-                    <field name="employee_id"/>
+                    <field name="employee_id" placeholder="Input Your Name ..."/>
                     <field name="company_id"/>
                 </group>
                 <group>
@@ -71,26 +46,26 @@
                                 <field name="product_qty"/>
                                 <field name="product_uom"/>
                                 <field name="price_unit"/>
+                                <!-- <field name="price_subtotal"/> -->
                             </tree>
                         </field>
+                          <group class="oe_subtotal_footer oe_right">
+                              <field name="amount_untaxed" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                              <field name="amount_tax" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                              <div class="oe_subtotal_footer_separator oe_inline">
+                                  <label for="amount_total"/>
+                              </div>
+                              <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                          </group>
+                          <field name="notes" class="oe_inline" placeholder="Define your terms and conditions ..."/>
+                          <div class="oe_clear"/>
                     </page>
                     <page string="Other Information">
-                        <group class="oe_subtotal_footer oe_right">
-                            <!-- <field name="amount_untaxed" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                            <field name="amount_tax" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                            <div class="oe_subtotal_footer_separator oe_inline">
-                              <label for="amount_total"/>
-                            </div>
-                            <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/> -->
-                        </group>
                         <group>
                             <field name="user_id"/>
                             <field name="payment_term_id"/>
                         </group>
                         <group>
-                            <!-- <field name="date_from" widget="daterange" option="{'related_en'}/>
-                            <field name="date_to"/> -->
-                            <field name="notes" class="oe_inline" placeholder="Define your terms and conditions ..."/>
                         </group>
                     </page>
                 </notebook>
@@ -101,7 +76,7 @@
                     <center>
                       <h4
                         style="color:red ! important;">
-                        Odoo Custom Module <u><a href="https://www.jababeka.com/">Purchasing</a></u> V.0.0.2
+                        <i>Odoo Custom Module </i><u><b><a href="https://www.jababeka.com/">Purchasing</a></b></u><i> V.0.0.2</i>
                       </h4>
                     </center>
                   </div>
@@ -118,9 +93,11 @@
       <field name="arch" type="xml">
         <tree string="Purchasing Stationery Order Lines">
           <field name="code_pr" readonly="1"/>
-          <!-- <field name="code_product" readonly="1"/> -->
-          <field name="product_qty"/>
-          <!-- <field name="price_unit"/> -->
+          <field name="partner_id" readonly="1"/>
+          <field name="company_id"/>
+          <field name="origin"/>
+          <field name="amount_total"/>
+          <field name="state"/>
         </tree>
       </field>
     </record>
@@ -130,11 +107,9 @@
       <field name="model">purchasing.type_request</field>
       <field name="arch" type="xml">
         <tree>
-        <!-- <tree editable="bottom"> -->
           <field name="employee_id"/>
           <field name="type"/>
-          <!-- <field name="company_id"/> -->
-          <field name="company_name"/>          
+          <field name="company_name"/>
         </tree>
       </field>
     </record>
@@ -148,31 +123,9 @@
           <field name="employee_id"/>
           <field name="company_id"/>
           <field name="info_product"/>
-          <!-- <field name="state"/> -->
-          <!-- <field name="info_product" on_change="onchange_info_state(info_product, state, context)"/>
-          <field name="state" on_change="onchange_info_state(info_product, state, context)"/> -->
-          <!-- <label for="info_product and state"/>
-          <div>
-            <field name="info_product" class="form_product_info"/>
-            <field name="state" class="form_product_info" />
-          </div> -->
         </tree>
-          <!-- <field name="info_product" position="after">
-              <field name="state"/>
-          </field>
-          <field name="info_product" attrs="{'column_invisible': [('parent.state', 'not in', ['info_product', 'done'])]}"/> -->
       </field>
     </record>
-
-    <!-- <record model="ir.ui.view" id="product.product">
-      <field name="name">Form Keterangan Produk</field>
-      <field name="model">product.product</field>
-      <<field name="inherit_id" ref="product.product"/>
-      <field name="arch" type="xml">
-        <tree string="Keterangan Produk">
-        </tree>
-      </field>
-    </record> -->
 
     <!-- actions opening views on models -->
     <record model="ir.actions.act_window" id="client_form_action1">
@@ -204,22 +157,14 @@
       <field name="view_id" ref="purchasing.form_product_info"/>
     </record>
 
-    <!-- <record model="ir.actions.act_window" id="product.product">
-      <field name="name">Form Product</field>
-      <field name="res_model">product.product</field>
-      <field name="view_mode">kanban,tree,graph,form</field>
-      <field name="view_id" ref="product.product"/>
-    </record> -->
     <!-- server action to the one above -->
 
     <!-- Top menu item -->
-
     <menuitem name="Purchasing" id="purchasing.menu_root" web_icon="purchasing,static/description/purchase_icon.png"/>
 
     <!-- menu categories -->
     <menuitem name="Home" id="purchasing.menu_1" parent="purchasing.menu_root" action="purchasing.action_form_stationery"/>
     <menuitem name="Menu" id="purchasing.menu_2" parent="purchasing.menu_root"/>
-    <!-- <menuitem name="Setting" id="purchasing.menu_3" parent="purchasing.menu_root"/> -->
 
     <!-- actions -->
     <menuitem name="Form Stationary"
@@ -235,9 +180,6 @@
             id="purchasing_form_product_info"
             parent="purchasing.menu_2"
             action="purchasing.action_form_product_info"/>     
-    <!-- <menuitem name="Keterangan Product"
-            id="product.product"
-            parent="purchasing.menu_3"
-            action="purchasing.action_form_setting"/> -->
+
   </data>
 </odoo>
