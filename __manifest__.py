@@ -22,8 +22,8 @@
     'depends': [
         'base',
         'purchase',
-        'product'
-        # 'base64'
+        'product',
+        'account'
     ],
 
     # always loaded
@@ -49,8 +49,8 @@
     #   'python': ['ldap3'],
     # },
     # 'sequence': 2,
-    # 'auto_install': False,
-    # 'installable': True,
-    # 'application': True,
+    'installable': True,
+    'auto_install': True,
+    'application': True,
 
 }
