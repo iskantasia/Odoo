@@ -56,7 +56,6 @@ class form_stationery(models.Model):
              "Otherwise, keep empty to deliver to your own company.")
 
     employee_id = fields.Many2one(comodel_name='res.partner', string='Employee')
-    # company_id = fields.Many2one(comodel_name='res.company', string='Company')
     company_id = fields.Many2one('res.company', 'Company', required=True, index=True, states=READONLY_STATES, default=lambda self: self.env.company.id)
 
     product_id = fields.One2many(
@@ -642,14 +641,15 @@ class product_lines(models.Model):
             return {'warning': warning}
         return {}
 
+# ------------------------------------------------------------------------------------------
+# ----------------------------------- Error ------------------------------------------------
+# ------------------------------------------------------------------------------------------
     @api.onchange('product_qty', 'product_uom')
     def _onchange_quantity(self):
         if not self.product_id:
             return
-        params = {'order_id': self.order_id}
-# ------------------------------------------------------------------------------------------
-# ----------------------------------- Error ------------------------------------------------
-# ------------------------------------------------------------------------------------------
+    #     params = {'order_id': self.order_id}
+
         # seller = self.product_id._select_seller(
         #     partner_id=self.partner_id,
         #     quantity=self.product_qty,
