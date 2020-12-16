@@ -53,6 +53,7 @@ class form_stationery(models.Model):
     notes = fields.Text('Terms and Conditions')
     date_planned = fields.Datetime(string='Request Date', index=True)
     product_qty = fields.Float(comodel_name='product.lines', string='Quantity', index=True)
+
 #   Generate Code PR Auto
     code_pr = fields.Char(string="Code PR", required=True, copy=False, readonly=True,
                           index=True, default=lambda self: _('New PR'))
