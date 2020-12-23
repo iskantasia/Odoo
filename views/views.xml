@@ -17,11 +17,12 @@
             <button name="button_confirm" type="object" states="draft" string="Confirm Order" id="draft_confirm"/>
             <button name="action_stationery_send" states="purchase" string="Send PO by Email" type="object" context="{'send_stationery':False}"/>
             <!-- <button name="action_view_invoice" string="Create Bill" type="object" context="{'create_bill':True}" attrs="{'invisible': ['|', '|', ('state', 'not in', ('purchase', 'done')), ('invoice_status', 'not in', ('no', 'invoiced')), ('order_line', '=', [])]}"/> -->
+            <button name="action_view_invoice" string="Create Bill" type="object" context="{'create_bill':True}"/>
             <button name="button_draft" states="cancel" string="Set to Draft" type="object" />
             <button name="button_cancel" states="draft,to approve,sent,purchase" string="Cancel" type="object" />
             <button name="button_done" type="object" string="Lock" states="purchase"/>
             <button name="button_unlock" type="object" string="Unlock" states="done" groups="purchase.group_purchase_manager"/>
-            <!-- <button name="delete_lines" type="object" string="Delete" class="oe_hightlight"/> -->
+            <button name="delete_lines" type="object" string="Delete" class="oe_hightlight"/>
             <button name="approve" string="Approve" type="object" groups="purchasing.role_purchasing_user"/>
             <field name="state" widget="statusbar" statusbar_visible="draft,sent,purchase" readonly="1"/>
           </header>
@@ -33,7 +34,10 @@
               </button>
             </div>
             <div class="oe_title">
+                <span class="o_form_label" attrs="{'invisible': [('state','not in',('draft','sent'))]}">Purchasing Stationery </span>
+                <span class="o_form_label" attrs="{'invisible': [('state','in',('draft','sent'))]}">Purchase Order </span>
                 <h1>
+                    <!-- <field name="name" string="ID/" readonly="1" style="color:red ! important;" /> -->
                     <field name="code_pr" string="PR" readonly="1" style="color:red ! important;" />
                 </h1>
             </div>
@@ -59,7 +63,7 @@
                                 <field name="product_uom"/>
                                 <field name="taxes_id" widget="many2many_tags" domain="[('type_tax_use','=','purchase'), ('company_id', '=', parent.company_id)]" context="{'default_type_tax_use': 'purchase', 'search_view_ref': 'account.account_tax_view_search'}" options="{'no_create': True}" optional="show"/>
                                 <field name="price_unit"/>
-                                <!-- <field name="price_subtotal" widget="monetary" options="{'currency_field': 'currency_id'}"/> -->
+                                <field name="price_subtotal" widget="monetary"/>
                             </tree>
                         </field>
                           <group class="oe_subtotal_footer oe_right">
@@ -75,22 +79,58 @@
                     </page>
                     <page string="Other Information">
                         <group>
-                            <field name="user_id"/>
-                            <field name="payment_term_id"/>
+                            <group name="planning">
+                                <label for="date_planned"/>
+                                <div>
+                                    <field name="date_planned" attrs="{'readonly': [('state', 'not in', ('draft', 'sent'))]}"/>
+                                </div>
+                            </group>
+                            <group name="other_info">
+                                <field name="user_id"/>
+                                <field name="invoice_status" attrs="{'invisible': [('state', 'in', ('draft', 'sent', 'to approve', 'cancel'))]}"/>
+                                <field name="payment_term_id" attrs="{'readonly': ['|', ('invoice_status','=', 'invoiced'), ('state', '=', 'done')]}" options="{'no_create': True}"/>
+                                <field name="fiscal_position_id" options="{'no_create': True}" attrs="{'readonly': ['|', ('invoice_status','=', 'invoiced'), ('state', '=', 'done')]}"/>
+                            </group>
                         </group>
                     </page>
                 </notebook>
             </group>
-          <footer>
-              <div class="purchasing">
-                  <div id="footer_container">
-                    <center><h5 style="color:red ! important;">
-                        <i>Odoo Custom Module </i><u><b><a href="https://www.jababeka.com/">Purchasing</a></b></u><i> V.0.0.2</i>
-                    </h5></center>
-                  </div>
-              </div>
-          </footer>
+          <field name="activity_state"/>
+              <progressbar field="activity_state" colors='{"planned": "success", "today": "warning", "overdue": "danger"}'/>
+              <templates>
+                  <t>
+                      <!-- <div t-attf-class="oe_kanban_card oe_kanban_global_click">
+                          <div class="o_kanban_record_top mb16">
+                              <div class="o_kanban_record_headings mt4">
+                                  <strong class="o_kanban_record_title"><span><t t-esc="record.partner_id.value"/></span></strong>
+                              </div>
+                              <strong><field name="amount_total" widget="monetary"/></strong>
+                          </div>
+                          <div class="o_kanban_record_bottom">
+                              <div class="oe_kanban_bottom_left">
+                                  <span>
+                                    <t t-esc="record.name.value"/>
+                                    <t t-esc="record.date_order.value and record.date_order.value.split(' ')[0] or False"/>
+                                  </span>
+                                  <field name="activity_ids" widget="kanban_activity"/>
+                              </div>
+                              <div class="oe_kanban_bottom_right">
+                                  <field name="state" widget="label_selection" options="{'classes': {'draft': 'default', 'cancel': 'default', 'done': 'success', 'approved': 'warning'}}"/>
+                              </div>
+                          </div>
+                      </div> -->
+                  </t>
+              </templates>
           </sheet>
+              <div class="oe_chatter">
+                  <field name="message_follower_ids" widget="mail_followers"/>
+                  <field name="activity_ids" widget="mail_activity"/>
+                  <field name="message_ids" widget="mail_thread"/>
+                  <!-- <center><h5 style="color:red ! important;">
+                      <i>Odoo Custom Module </i><u><b><a href="https://www.jababeka.com/">Purchasing</a></b></u><i> V.1.2.0</i>
+                  </h5></center> -->
+              </div>
+          <!-- </sheet> -->
         </form>
       </field>
     </record>
@@ -101,7 +141,6 @@
       <field name="arch" type="xml">
         <tree string="Purchasing Stationery Order Lines">
           <field name="code_pr" readonly="1"/>
-          <!-- <field name="partner_id" readonly="1"/> -->
           <field name="company_id"/>
           <field name="origin"/>
           <field name="amount_total"/>
